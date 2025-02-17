@@ -12,25 +12,45 @@ const users = {
   2: { name: "Bob", age: 30 },
 };
 
+// Get user by ID
 app.get("/user/:id", (req, res) => {
   const id = req.params.id;
   const user = users[id];
-  res.json({ name: user.name, age: user.years });
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  res.json({ name: user.name, age: user.age });
 });
 
+// Create new user
 app.post("/user", (req, res) => {
-  const { userId, fullName, age } = req.body;
-  users[userId] = { fullName, age };
+  const { userId, name, age } = req.body;
+
+  if (!userId || !name || !age) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  users[userId] = { name, age };
   res.status(201).json({ message: "User created", user: users[userId] });
 });
 
+// Update user age
 app.patch("/user/:id", (req, res) => {
   const id = parseInt(req.params.id);
-  const age = req.query.age;
-  users[id].years = age;
+  const { age } = req.body;
+
+  if (!users[id]) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  users[id].age = age;
   res.json({ message: "User updated", user: users[id] });
 });
 
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
